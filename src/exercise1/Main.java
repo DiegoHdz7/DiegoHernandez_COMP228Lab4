@@ -7,14 +7,11 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import javafx.geometry.HPos;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import javax.swing.*;
@@ -26,7 +23,7 @@ public class Main extends Application {
     private Label lblName,lblAddress,lblProvince, lblCity,lblPostalCode, lblPhoneNumber,lblEmail;
     private TextField txtName, txtAddress,txtProvince,txtCity,txtPostalCode,txtPhoneNumber,txtEmail;
     private Button btnDisplay, btnChangeStyle;
-    private VBox lngBox;
+    private HBox hBox;
     private VBox coursesBox;
     private HBox east;
     private String[] courses1 = {"Java","C#","Python","JavaScript"};
@@ -51,6 +48,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         borderPane = new BorderPane();
+
         //create the grid pane for entries
         empPanel = new GridPane();
         empPanel.setHgap(5);
@@ -107,6 +105,7 @@ public class Main extends Application {
 
         //create the text area
         tArea=new TextArea();
+        tArea.setPrefSize(1000,100);
 
 
 
@@ -118,41 +117,28 @@ public class Main extends Application {
         //rb1.setSelected(true);
         rb2 = new RadioButton("Business");
         rb2.setToggleGroup(group);
-        //
-
-
         // Create a scroll pane to hold the text area
         ScrollPane scrollPane = new ScrollPane(tArea);
-        //handle click events
-        btnDisplay.setOnAction(e -> displayEntries());
+
 
 
         //place grid pane in the center of border pane
         borderPane.setCenter(empPanel);
         //create the box pane and place to the right
-        lngBox = new VBox();
-        //set the style
-        lngBox.setStyle("-fx-padding: 10;" +
-                "-fx-border-style: solid inside;" +
-                "-fx-border-width: 2;" +
-                "-fx-border-insets: 5;" +
-                "-fx-border-radius: 5;" +
-                "-fx-border-color: blue;");
 
-        //set the title of box pane
-        Text title = new Text("Major");
-        lngBox.getChildren().add(title);
-        lngBox.getChildren().addAll(rb1, rb2);
-        //
         coursesBox = new VBox();
+
+        HBox hbox = new HBox();
+        hbox.getChildren().add(rb1);
+        hbox.getChildren().add(rb2);
+        hbox.setSpacing(10);
+        hbox.setPadding(new Insets(20));
+
+
         Text coursesTitle = new Text("Courses");
+        coursesBox.getChildren().add(hbox);
         coursesBox.getChildren().add(coursesTitle);
-        coursesBox.setStyle("-fx-padding: 10;" +
-                "-fx-border-style: solid inside;" +
-                "-fx-border-width: 2;" +
-                "-fx-border-insets: 5;" +
-                "-fx-border-radius: 5;" +
-                "-fx-border-color: blue;");
+
         cbo = new ComboBox<>();
 
         ObservableList<String> items1=FXCollections.observableArrayList(courses1);
@@ -165,24 +151,24 @@ public class Main extends Application {
         lv = new ListView<>(FXCollections.observableArrayList());
         lv.setPrefSize(200, 200);
 
-        // Display the selected country
+
 
         coursesBox.getChildren().addAll(cbo,lv);
         //
         east = new HBox();
-        east.getChildren().addAll(lngBox,coursesBox);
-        borderPane.setRight(east);
+        east.getChildren().addAll(coursesBox);
 
-        //borderPane.setRight(lngBox);
+        borderPane.setRight(east);
 
         //set the scroll pane to the bottom of border pane
         borderPane.setBottom(scrollPane);
         // Create a scene and place it in the stage
-        Scene scene = new Scene(borderPane, 600, 300);
+        Scene scene = new Scene(borderPane, 600, 350);
 
         primaryStage.setTitle("Student Info"); // Set title
         primaryStage.setScene(scene); // Place the scene in the stage
         primaryStage.show(); // Display the stage
+
         //Events
         rb1.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -269,6 +255,27 @@ public class Main extends Application {
         });
 
 
+        btnDisplay.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                displayEntries();
+                coursesIB.clear();
+                coursesIT.clear();
+                data.clear();
+                lv.setItems(null);
+
+                txtName.clear();
+                txtAddress.clear();
+                txtProvince.clear();
+                txtCity.clear();
+                txtPostalCode.clear();
+                txtPhoneNumber.clear();
+                txtEmail.clear();
+
+            }
+        });
+
+
     }
 
 
@@ -285,12 +292,12 @@ public class Main extends Application {
         String phoneNumber=txtPhoneNumber.getText();
         String email=txtEmail.getText();
 
-        tArea.appendText("\n"+name +" "+
-                address +" "+
-                province +" "+
-                city +" "+
-                postalCode +" "+
-                phoneNumber +" "+
+        tArea.appendText("\n"+name +", "+
+                address +", "+
+                province +", "+
+                city +", "+
+                postalCode +", "+
+                phoneNumber +", "+
                 email +". ");
         if (rb1.isSelected()) {
             tArea.appendText(" "+rb1.getText());
@@ -301,8 +308,8 @@ public class Main extends Application {
             showList = coursesIB;
         }
 
-        if(chkVolunteer.isSelected())tArea.appendText(" | "+chkVolunteer.getText()+" | ");
-        if(chkStudentCouncil.isSelected())tArea.appendText(" | "+chkStudentCouncil.getText()+" | ");
+        if(chkVolunteer.isSelected())tArea.appendText(". "+chkVolunteer.getText()+". ");
+        if(chkStudentCouncil.isSelected())tArea.appendText(". "+chkStudentCouncil.getText());
 
         tArea.appendText("\n Courses:\n");
 
@@ -318,17 +325,7 @@ public class Main extends Application {
         }
 
     }
-    //
-    public void changeAppearance(Control control)
-    {
 
-        control.setStyle(
-                "-fx-font: 16px Serif;"+
-                        "-fx-font-weight: bold;"+
-                        "-fx-text-fill: blue;" +
-                        "-fx-background-color: #CCFF99;");
-
-    }
 
     public static void main(String[] args) {
         // TODO Auto-generated method stub
